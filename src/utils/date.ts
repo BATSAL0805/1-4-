@@ -1,4 +1,4 @@
-const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
+export const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 /** Returns today as a YYYY-MM-DD string in the local timezone. */
