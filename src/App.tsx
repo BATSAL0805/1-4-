@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
+import { CalendarView } from "./components/CalendarView";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { DateBlock } from "./components/DateBlock";
-import { Header } from "./components/Header";
+import { Header, type ViewMode } from "./components/Header";
 import { Toast } from "./components/Toast";
 import { TodoFormModal } from "./components/TodoFormModal";
 import { useDarkMode } from "./hooks/useDarkMode";
@@ -14,6 +15,7 @@ export default function App() {
   const { todos, loading, error, addTodo, updateTodo, deleteTodo } = useTodos();
   const { isDark, toggle: toggleDark } = useDarkMode();
 
+  const [view, setView] = useState<ViewMode>("list");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [deletingTodo, setDeletingTodo] = useState<Todo | null>(null);
@@ -71,6 +73,8 @@ export default function App() {
         hasTodos={groups.length > 0}
         isDark={isDark}
         onToggleDark={toggleDark}
+        view={view}
+        onChangeView={setView}
       />
 
       <main className="mx-auto max-w-2xl space-y-4 px-4 py-6">
@@ -86,21 +90,33 @@ export default function App() {
           </p>
         )}
 
-        {!loading && !error && groups.length === 0 && (
+        {!loading && !error && view === "calendar" && (
+          <CalendarView
+            groups={groups}
+            onCopy={handleCopyGroup}
+            onEdit={openEditForm}
+            onDelete={setDeletingTodo}
+          />
+        )}
+
+        {!loading && !error && view === "list" && groups.length === 0 && (
           <p className="py-10 text-center text-sm text-gray-500 dark:text-gray-400">
             등록된 할일이 없습니다. &quot;할일 추가&quot; 버튼을 눌러 시작해보세요.
           </p>
         )}
 
-        {groups.map((group) => (
-          <DateBlock
-            key={group.date}
-            group={group}
-            onCopy={handleCopyGroup}
-            onEdit={openEditForm}
-            onDelete={setDeletingTodo}
-          />
-        ))}
+        {!loading &&
+          !error &&
+          view === "list" &&
+          groups.map((group) => (
+            <DateBlock
+              key={group.date}
+              group={group}
+              onCopy={handleCopyGroup}
+              onEdit={openEditForm}
+              onDelete={setDeletingTodo}
+            />
+          ))}
       </main>
 
       {isFormOpen && (
