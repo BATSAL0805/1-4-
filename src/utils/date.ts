@@ -25,6 +25,12 @@ export function formatDateWithDay(value: string): string {
   return `${date.getMonth() + 1}/${date.getDate()}(${DAY_NAMES[date.getDay()]})`;
 }
 
+/** Formats YYYY-MM-DD as "9/15". */
+export function formatShortDate(value: string): string {
+  const date = parseISODate(value);
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+}
+
 export function addDays(value: string, amount: number): string {
   const date = parseISODate(value);
   date.setDate(date.getDate() + amount);

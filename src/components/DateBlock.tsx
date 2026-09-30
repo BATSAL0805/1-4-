@@ -1,5 +1,5 @@
 import type { DateGroup, Todo } from "../types";
-import { formatDateWithDay } from "../utils/date";
+import { formatDateWithDay, formatShortDate } from "../utils/date";
 
 interface DateBlockProps {
   group: DateGroup;
@@ -35,6 +35,11 @@ export function DateBlock({ group, onCopy, onEdit, onDelete }: DateBlockProps) {
             <p className="min-w-0 flex-1 break-words text-sm text-gray-800 dark:text-gray-200">
               <span className="mr-1 text-gray-400 dark:text-gray-500">{index + 1}.</span>
               {todo.content}
+              {todo.endDate && (
+                <span className="ml-1.5 inline-block rounded-md bg-indigo-50 px-1.5 py-0.5 text-xs font-semibold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+                  [{formatShortDate(todo.endDate)}까지]
+                </span>
+              )}
             </p>
             <div className="flex shrink-0 gap-1">
               <button
