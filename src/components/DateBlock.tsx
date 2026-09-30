@@ -1,5 +1,5 @@
 import type { DateGroup, Todo } from "../types";
-import { formatDateWithDay } from "../utils/date";
+import { formatDayOfWeekAbbr, formatShortDate, formatYearMonthDay } from "../utils/date";
 
 interface DateBlockProps {
   group: DateGroup;
@@ -10,10 +10,18 @@ interface DateBlockProps {
 
 export function DateBlock({ group, onCopy, onEdit, onDelete }: DateBlockProps) {
   return (
-    <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+    <section
+      id={`date-${group.date}`}
+      className="scroll-mt-20 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+    >
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-          &lt;{formatDateWithDay(group.date)}&gt;
+        <h2 className="flex flex-col leading-tight">
+          <span className="text-base font-bold tabular-nums tracking-wide text-gray-900 dark:text-gray-100">
+            {formatYearMonthDay(group.date)}
+          </span>
+          <span className="mt-0.5 text-[0.65rem] font-semibold tracking-widest text-gray-500 dark:text-gray-400">
+            {formatDayOfWeekAbbr(group.date)}
+          </span>
         </h2>
         <button
           type="button"
@@ -32,6 +40,11 @@ export function DateBlock({ group, onCopy, onEdit, onDelete }: DateBlockProps) {
             <p className="min-w-0 flex-1 break-words text-sm text-gray-800 dark:text-gray-200">
               <span className="mr-1 text-gray-400 dark:text-gray-500">{index + 1}.</span>
               {todo.content}
+              {todo.endDate && (
+                <span className="ml-1.5 inline-block rounded-md bg-indigo-50 px-1.5 py-0.5 text-xs font-semibold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+                  [{formatShortDate(todo.endDate)}까지]
+                </span>
+              )}
             </p>
             <div className="flex shrink-0 gap-1">
               <button

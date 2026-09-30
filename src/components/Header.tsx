@@ -22,7 +22,7 @@ export function Header({
   return (
     <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90">
       <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-3 px-4 py-4">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">할일 스케줄러</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">1-4 알림장</h1>
         <div className="flex items-center gap-2">
           <div className="flex rounded-lg border border-gray-300 p-0.5 dark:border-gray-700">
             <button
