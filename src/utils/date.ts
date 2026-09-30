@@ -1,4 +1,5 @@
 export const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
+const DAY_ABBR = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 /** Returns today as a YYYY-MM-DD string in the local timezone. */
@@ -29,6 +30,21 @@ export function formatDateWithDay(value: string): string {
 export function formatShortDate(value: string): string {
   const date = parseISODate(value);
   return `${date.getMonth() + 1}/${date.getDate()}`;
+}
+
+/** Formats YYYY-MM-DD as "26. 09. 30" (2-digit year, zero-padded month/day). */
+export function formatYearMonthDay(value: string): string {
+  const date = parseISODate(value);
+  const yy = String(date.getFullYear()).slice(-2);
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yy}. ${mm}. ${dd}`;
+}
+
+/** Returns the day of week as an uppercase English abbreviation, e.g. "WED". */
+export function formatDayOfWeekAbbr(value: string): string {
+  const date = parseISODate(value);
+  return DAY_ABBR[date.getDay()];
 }
 
 export function addDays(value: string, amount: number): string {

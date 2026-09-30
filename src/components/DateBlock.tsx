@@ -1,5 +1,5 @@
 import type { DateGroup, Todo } from "../types";
-import { formatDateWithDay, formatShortDate } from "../utils/date";
+import { formatDayOfWeekAbbr, formatShortDate, formatYearMonthDay } from "../utils/date";
 
 interface DateBlockProps {
   group: DateGroup;
@@ -15,8 +15,13 @@ export function DateBlock({ group, onCopy, onEdit, onDelete }: DateBlockProps) {
       className="scroll-mt-20 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
     >
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-          &lt;{formatDateWithDay(group.date)}&gt;
+        <h2 className="flex flex-col leading-tight">
+          <span className="text-base font-bold tabular-nums tracking-wide text-gray-900 dark:text-gray-100">
+            {formatYearMonthDay(group.date)}
+          </span>
+          <span className="mt-0.5 text-[0.65rem] font-semibold tracking-widest text-gray-500 dark:text-gray-400">
+            {formatDayOfWeekAbbr(group.date)}
+          </span>
         </h2>
         <button
           type="button"
