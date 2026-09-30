@@ -13,7 +13,7 @@ export function DateBlock({ group, onCopy, onEdit, onDelete }: DateBlockProps) {
     <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-          {formatDateWithDay(group.date)}
+          &lt;{formatDateWithDay(group.date)}&gt;
         </h2>
         <button
           type="button"

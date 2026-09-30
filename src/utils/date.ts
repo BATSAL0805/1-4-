@@ -35,6 +35,17 @@ export function compareDates(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
+/** Returns the last date a todo is displayed on (endDate is exclusive). */
+export function getLastDisplayDate(startDate: string, endDate: string | null): string {
+  return endDate ? addDays(endDate, -1) : startDate;
+}
+
+/** True once a todo's last display date is 7 or more days before `today`. */
+export function isExpired(startDate: string, endDate: string | null, today: string): boolean {
+  const lastDisplayDate = getLastDisplayDate(startDate, endDate);
+  return compareDates(lastDisplayDate, addDays(today, -7)) <= 0;
+}
+
 /**
  * Returns every date string a todo should appear on.
  * No endDate -> only startDate. With endDate -> [startDate, endDate).
