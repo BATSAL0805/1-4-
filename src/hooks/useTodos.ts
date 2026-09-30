@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import type { Todo, TodoInput } from "../types";
+import { isExpired, todayString } from "../utils/date";
 
 const COLLECTION = "todos";
 
@@ -24,12 +25,18 @@ export function useTodos() {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        setTodos(
-          snapshot.docs.map((docSnap) => ({
-            id: docSnap.id,
-            ...(docSnap.data() as Omit<Todo, "id">),
-          })),
-        );
+        const docs = snapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...(docSnap.data() as Omit<Todo, "id">),
+        }));
+
+        const today = todayString();
+        const expired = docs.filter((todo) => isExpired(todo.startDate, todo.endDate, today));
+        for (const todo of expired) {
+          deleteDoc(doc(db, COLLECTION, todo.id)).catch(() => {});
+        }
+
+        setTodos(docs.filter((todo) => !expired.includes(todo)));
         setLoading(false);
       },
       (err) => {
