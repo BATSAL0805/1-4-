@@ -39,6 +39,11 @@ export function DateBlock({ group, onCopy, onEdit, onDelete }: DateBlockProps) {
           >
             <p className="min-w-0 flex-1 break-words text-sm text-gray-800 dark:text-gray-200">
               <span className="mr-1 text-gray-400 dark:text-gray-500">{index + 1}.</span>
+              {todo.subject && (
+                <span className="mr-1 font-bold text-gray-900 dark:text-gray-100">
+                  {todo.subject}
+                </span>
+              )}
               {todo.content}
               {todo.endDate && (
                 <span className="ml-1.5 inline-block rounded-md bg-indigo-50 px-1.5 py-0.5 text-xs font-semibold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">

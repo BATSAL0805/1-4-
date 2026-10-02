@@ -1,13 +1,21 @@
-import type { DateGroup } from "../types";
+import type { DateGroup, SubjectGroup } from "../types";
 import { formatDateWithDay } from "./date";
 
 export function formatDateGroup(group: DateGroup): string {
-  const lines = group.todos.map((todo, index) => `${index + 1}. ${todo.content}`);
+  const lines = group.todos.map((todo, index) => {
+    const prefix = todo.subject ? `${todo.subject} ` : "";
+    return `${index + 1}. ${prefix}${todo.content}`;
+  });
   return [formatDateWithDay(group.date), ...lines].join("\n");
 }
 
 export function formatAllGroups(groups: DateGroup[]): string {
   return groups.map(formatDateGroup).join("\n\n");
+}
+
+export function formatSubjectGroup(subjectGroup: SubjectGroup): string {
+  const lines = subjectGroup.todos.map((todo, index) => `${index + 1}. ${todo.content}`);
+  return [subjectGroup.subject, ...lines].join("\n");
 }
 
 export async function copyToClipboard(text: string): Promise<boolean> {
