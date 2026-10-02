@@ -2,7 +2,10 @@ import type { DateGroup } from "../types";
 import { formatDateWithDay } from "./date";
 
 export function formatDateGroup(group: DateGroup): string {
-  const lines = group.todos.map((todo, index) => `${index + 1}. ${todo.content}`);
+  const lines = group.todos.map((todo, index) => {
+    const prefix = todo.subject ? `${todo.subject} ` : "";
+    return `${index + 1}. ${prefix}${todo.content}`;
+  });
   return [formatDateWithDay(group.date), ...lines].join("\n");
 }
 
