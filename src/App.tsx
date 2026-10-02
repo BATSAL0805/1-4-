@@ -1,14 +1,19 @@
 import { useMemo, useState } from "react";
 import { CalendarView } from "./components/CalendarView";
 import { ConfirmDialog } from "./components/ConfirmDialog";
-import { DateBlock } from "./components/DateBlock";
+import { DayListView } from "./components/DayListView";
 import { Header, type ViewMode } from "./components/Header";
 import { Toast } from "./components/Toast";
 import { TodoFormModal } from "./components/TodoFormModal";
 import { useDarkMode } from "./hooks/useDarkMode";
 import { useTodos } from "./hooks/useTodos";
-import type { DateGroup, Todo, TodoInput } from "./types";
-import { copyToClipboard, formatAllGroups, formatDateGroup } from "./utils/clipboard";
+import type { DateGroup, SubjectGroup, Todo, TodoInput } from "./types";
+import {
+  copyToClipboard,
+  formatAllGroups,
+  formatDateGroup,
+  formatSubjectGroup,
+} from "./utils/clipboard";
 import { groupTodosByDate } from "./utils/grouping";
 
 export default function App() {
@@ -20,7 +25,6 @@ export default function App() {
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [deletingTodo, setDeletingTodo] = useState<Todo | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [jumpDate, setJumpDate] = useState("");
 
   const groups = useMemo(() => groupTodosByDate(todos), [todos]);
 
@@ -66,15 +70,9 @@ export default function App() {
     showToast(ok ? "복사되었습니다." : "복사에 실패했습니다.");
   }
 
-  function handleJumpToDate(date: string) {
-    setJumpDate(date);
-    if (!date) return;
-    const target = document.getElementById(`date-${date}`);
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else {
-      showToast("해당 날짜에 할일이 없습니다.");
-    }
+  async function handleCopySubjectGroup(subjectGroup: SubjectGroup) {
+    const ok = await copyToClipboard(formatSubjectGroup(subjectGroup));
+    showToast(ok ? "복사되었습니다." : "복사에 실패했습니다.");
   }
 
   return (
@@ -112,38 +110,14 @@ export default function App() {
         )}
 
         {!loading && !error && view === "list" && (
-          <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
-            <label htmlFor="jump-date" className="text-sm text-gray-600 dark:text-gray-300">
-              날짜로 이동
-            </label>
-            <input
-              id="jump-date"
-              type="date"
-              value={jumpDate}
-              onChange={(event) => handleJumpToDate(event.target.value)}
-              className="rounded-md border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-            />
-          </div>
+          <DayListView
+            groups={groups}
+            onCopyDay={handleCopyGroup}
+            onCopySubject={handleCopySubjectGroup}
+            onEdit={openEditForm}
+            onDelete={setDeletingTodo}
+          />
         )}
-
-        {!loading && !error && view === "list" && groups.length === 0 && (
-          <p className="py-10 text-center text-sm text-gray-500 dark:text-gray-400">
-            등록된 할일이 없습니다. &quot;할일 추가&quot; 버튼을 눌러 시작해보세요.
-          </p>
-        )}
-
-        {!loading &&
-          !error &&
-          view === "list" &&
-          groups.map((group) => (
-            <DateBlock
-              key={group.date}
-              group={group}
-              onCopy={handleCopyGroup}
-              onEdit={openEditForm}
-              onDelete={setDeletingTodo}
-            />
-          ))}
       </main>
 
       {isFormOpen && (

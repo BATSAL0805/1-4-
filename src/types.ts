@@ -22,3 +22,8 @@ export interface DateGroup {
   date: string;
   todos: Todo[];
 }
+
+export interface SubjectGroup {
+  subject: string;
+  todos: Todo[];
+}

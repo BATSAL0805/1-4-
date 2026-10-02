@@ -47,6 +47,15 @@ export function formatDayOfWeekAbbr(value: string): string {
   return DAY_ABBR[date.getDay()];
 }
 
+/** Formats YYYY-MM-DD as "26.10.02 (FRI)" for the day-page header. */
+export function formatDayPageHeader(value: string): string {
+  const date = parseISODate(value);
+  const yy = String(date.getFullYear()).slice(-2);
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yy}.${mm}.${dd} (${DAY_ABBR[date.getDay()]})`;
+}
+
 export function addDays(value: string, amount: number): string {
   const date = parseISODate(value);
   date.setDate(date.getDate() + amount);
