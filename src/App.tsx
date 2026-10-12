@@ -6,6 +6,7 @@ import { Header, type ViewMode } from "./components/Header";
 import { Toast } from "./components/Toast";
 import { TodoFormModal } from "./components/TodoFormModal";
 import { useDarkMode } from "./hooks/useDarkMode";
+import { usePushNotifications } from "./hooks/usePushNotifications";
 import { useTodos } from "./hooks/useTodos";
 import type { DateGroup, SubjectGroup, Todo, TodoInput } from "./types";
 import {
@@ -19,6 +20,7 @@ import { groupTodosByDate } from "./utils/grouping";
 export default function App() {
   const { todos, loading, error, addTodo, updateTodo, deleteTodo } = useTodos();
   const { isDark, toggle: toggleDark } = useDarkMode();
+  const { status: pushStatus, enable: enablePush } = usePushNotifications();
 
   const [view, setView] = useState<ViewMode>("list");
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -85,6 +87,8 @@ export default function App() {
         onToggleDark={toggleDark}
         view={view}
         onChangeView={setView}
+        pushStatus={pushStatus}
+        onEnablePush={enablePush}
       />
 
       <main className="mx-auto max-w-2xl space-y-4 px-4 py-6">

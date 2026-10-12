@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getMessaging, isSupported, type Messaging } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -13,3 +14,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
+
+/** Resolves to a Messaging instance, or null if this browser doesn't support web push. */
+export async function getMessagingIfSupported(): Promise<Messaging | null> {
+  if (!(await isSupported())) return null;
+  return getMessaging(app);
+}
