@@ -7,9 +7,11 @@ export type PushStatus = "idle" | "enabling" | "enabled" | "unsupported" | "deni
 
 export function usePushNotifications() {
   const [status, setStatus] = useState<PushStatus>("idle");
+  const [error, setError] = useState<string | null>(null);
 
   async function enable() {
     setStatus("enabling");
+    setError(null);
     try {
       const messaging = await getMessagingIfSupported();
       if (!messaging) {
@@ -35,9 +37,10 @@ export function usePushNotifications() {
       setStatus("enabled");
     } catch (err) {
       console.error(err);
+      setError(err instanceof Error ? `${err.name}: ${err.message}` : String(err));
       setStatus("error");
     }
   }
 
-  return { status, enable };
+  return { status, error, enable };
 }

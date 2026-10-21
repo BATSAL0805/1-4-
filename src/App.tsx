@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CalendarView } from "./components/CalendarView";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { DayListView } from "./components/DayListView";
@@ -20,7 +20,7 @@ import { groupTodosByDate } from "./utils/grouping";
 export default function App() {
   const { todos, loading, error, addTodo, updateTodo, deleteTodo } = useTodos();
   const { isDark, toggle: toggleDark } = useDarkMode();
-  const { status: pushStatus, enable: enablePush } = usePushNotifications();
+  const { status: pushStatus, error: pushError, enable: enablePush } = usePushNotifications();
 
   const [view, setView] = useState<ViewMode>("list");
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -30,10 +30,14 @@ export default function App() {
 
   const groups = useMemo(() => groupTodosByDate(todos), [todos]);
 
-  function showToast(message: string) {
+  function showToast(message: string, duration = 1800) {
     setToast(message);
-    setTimeout(() => setToast(null), 1800);
+    setTimeout(() => setToast(null), duration);
   }
+
+  useEffect(() => {
+    if (pushError) showToast(`알림 설정 실패: ${pushError}`, 8000);
+  }, [pushError]);
 
   function openAddForm() {
     setEditingTodo(null);
