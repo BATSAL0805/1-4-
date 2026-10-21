@@ -1,3 +1,5 @@
+import type { PushStatus } from "../hooks/usePushNotifications";
+
 export type ViewMode = "list" | "calendar";
 
 interface HeaderProps {
@@ -8,7 +10,18 @@ interface HeaderProps {
   onToggleDark: () => void;
   view: ViewMode;
   onChangeView: (view: ViewMode) => void;
+  pushStatus: PushStatus;
+  onEnablePush: () => void;
 }
+
+const PUSH_LABEL: Record<PushStatus, string> = {
+  idle: "🔔 알림 켜기",
+  enabling: "🔔 설정 중...",
+  enabled: "🔔 알림 켜짐",
+  unsupported: "🔔 지원 안 됨",
+  denied: "🔔 알림 허용 필요",
+  error: "🔔 다시 시도",
+};
 
 export function Header({
   onAdd,
@@ -18,6 +31,8 @@ export function Header({
   onToggleDark,
   view,
   onChangeView,
+  pushStatus,
+  onEnablePush,
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90">
@@ -64,6 +79,14 @@ export function Header({
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
           >
             전체 복사
+          </button>
+          <button
+            type="button"
+            onClick={onEnablePush}
+            disabled={pushStatus === "enabling" || pushStatus === "enabled" || pushStatus === "unsupported"}
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+          >
+            {PUSH_LABEL[pushStatus]}
           </button>
           <button
             type="button"

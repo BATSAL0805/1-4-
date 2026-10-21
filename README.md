@@ -12,6 +12,7 @@
 - Firebase Firestore 실시간 저장 (기기·브라우저 간 데이터 동기화)
 - 반응형 UI (모바일 / PC)
 - 다크모드 (시스템 설정 자동 감지 + 수동 전환)
+- 매일 밤 11시(KST) 푸시 알림 (브라우저 알림 허용 시, 안드로이드/PC는 앱을 꺼둬도 수신. iOS는 "홈 화면에 추가" 설치 필요)
 
 완료 체크 기능, 로그인/회원가입, 복잡한 데이터베이스 UI는 이 앱의 목적(알림장 내용 관리)과 맞지 않아 의도적으로 제외했습니다.
 
@@ -75,6 +76,38 @@ VITE_FIREBASE_APP_ID=여기에_입력
 
 > 로그인 기능이 없는 특성상 완전한 접근 제어는 어렵습니다. 실제 반 친구들 외에는 URL을 공유하지 않는 것을 권장합니다.
 
+## 매일 밤 11시 알림(푸시 알림) 설정
+
+이 기능은 선택사항입니다. 설정하지 않아도 나머지 기능은 모두 정상 동작합니다.
+
+### 동작 방식
+
+- 사용자가 화면 상단 **"🔔 알림 켜기"** 버튼을 누르고 알림을 허용하면, 그 기기가 등록됩니다.
+- 매일 밤 11시(KST)에 **GitHub Actions**가 자동으로 실행되어, 등록된 모든 기기에 알림을 보냅니다. (Firebase 요금제 변경이나 별도 서버 없이, 저장소에 이미 있는 GitHub Actions만으로 동작합니다.)
+- 안드로이드/PC는 "허용" 한 번이면 끝이고, 앱을 꺼둬도 알림이 옵니다. **아이폰(iOS)은 사파리에서 "공유 → 홈 화면에 추가"로 설치해야** 백그라운드에서 알림을 받을 수 있습니다 (Apple의 제약이라 우회할 수 없습니다).
+
+### 1. VAPID 키 발급 (웹 푸시용)
+
+1. Firebase 콘솔 → 프로젝트 설정(⚙️) → **클라우드 메시징** 탭으로 이동합니다.
+2. "웹 구성" 섹션의 **키 쌍 생성**을 누릅니다.
+3. 생성된 키 문자열을 복사해 `.env`의 `VITE_FIREBASE_VAPID_KEY`에 넣습니다.
+
+### 2. 서비스 계정 키 발급 (서버에서 알림을 보내기 위한 키)
+
+1. Firebase 콘솔 → 프로젝트 설정(⚙️) → **서비스 계정** 탭으로 이동합니다.
+2. **새 비공개 키 생성**을 눌러 JSON 파일을 다운로드합니다.
+3. GitHub 저장소의 **Settings → Secrets and variables → Actions**에서 `FIREBASE_SERVICE_ACCOUNT_KEY`라는 이름의 Repository secret을 만들고, 다운로드한 JSON 파일의 **전체 내용**을 그대로 붙여넣습니다.
+
+> 이 JSON 파일은 Firestore 데이터에 전체 접근 권한을 가진 민감한 키입니다. GitHub Secret 외의 곳에는 저장하거나 공유하지 마세요.
+
+### 3. 배포용 Secret 추가
+
+**Settings → Secrets and variables → Actions**에 아래 1개를 추가로 등록합니다 (기존 6개 Firebase 값에 더해서).
+
+- `VITE_FIREBASE_VAPID_KEY`
+
+설정이 끝나면 `main` 브랜치에 다시 푸시하거나 Actions 탭에서 **Send daily alarm** 워크플로를 수동 실행(`workflow_dispatch`)해서 테스트해볼 수 있습니다.
+
 ## GitHub 업로드
 
 ```bash
@@ -96,7 +129,7 @@ git push -u origin main
 이 저장소에는 `main` 브랜치에 푸시하면 자동으로 GitHub Pages에 배포하는 GitHub Actions 워크플로(`.github/workflows/deploy.yml`)가 포함되어 있습니다.
 
 1. GitHub 저장소의 **Settings → Pages**에서 Source를 **GitHub Actions**로 설정합니다.
-2. **Settings → Secrets and variables → Actions**에서 `.env`에 넣었던 6개 값을 동일한 이름(`VITE_FIREBASE_API_KEY` 등)의 **Repository secret**으로 등록합니다. (빌드 시점에 주입되어야 하므로 필수입니다.)
+2. **Settings → Secrets and variables → Actions**에서 `.env`에 넣었던 값들을 동일한 이름(`VITE_FIREBASE_API_KEY` 등, 알림 기능을 쓴다면 `VITE_FIREBASE_VAPID_KEY`까지)의 **Repository secret**으로 등록합니다. (빌드 시점에 주입되어야 하므로 필수입니다.)
 3. `main` 브랜치에 푸시하면 자동으로 빌드 및 배포되며, Pages URL은 **Settings → Pages**에서 확인할 수 있습니다.
 
 수동으로 배포하고 싶다면 `npm run build`로 생성된 `dist` 폴더를 원하는 정적 호스팅에 올려도 됩니다. Firestore는 클라이언트에서 직접 호출하므로 별도의 백엔드 서버 없이도 동작합니다.
@@ -105,10 +138,16 @@ git push -u origin main
 
 ```
 src/
-  components/   UI 컴포넌트 (Header, DateBlock, TodoFormModal, ConfirmDialog, Toast)
-  hooks/        useTodos(Firestore CRUD), useDarkMode
-  utils/        날짜 계산, 날짜별 그룹화, 클립보드 복사
+  components/   UI 컴포넌트 (Header, DayListView, CalendarView, DateBlock, TodoFormModal, ConfirmDialog, Toast)
+  hooks/        useTodos(Firestore CRUD), useDarkMode, usePushNotifications
+  utils/        날짜 계산, 날짜별/과목별 그룹화, 클립보드 복사
   firebase.ts   Firebase 초기화
   types.ts      Todo 타입 정의
+scripts/
+  generate-sw.mjs        빌드 시 public/firebase-messaging-sw.js 생성
+  send-daily-alarm.mjs   매일 밤 11시 알림 발송 (GitHub Actions에서 실행)
+.github/workflows/
+  deploy.yml        GitHub Pages 배포
+  daily-alarm.yml   매일 밤 11시(KST) 알림 발송 예약 실행
 firestore.rules  Firestore 보안 규칙
 ```
